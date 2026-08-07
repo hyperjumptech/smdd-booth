@@ -1,0 +1,21 @@
+{
+  "name": "Hyperjump",
+  "short_name": "Hyperjump",
+  "description": "Open source first. Cloud native. DevOps excellence.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1C1F2E",
+  "theme_color": "#1C1F2E",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

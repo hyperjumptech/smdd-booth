@@ -1,0 +1,24 @@
+{
+  "name": "@booth/server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --env-file=../.env --watch-path=./src --import tsx src/index.ts",
+    "build": "tsc",
+    "start": "node ../scripts/start.mjs",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@booth/shared": "*",
+    "@hono/node-server": "^1.14.0",
+    "better-sqlite3": "^11.8.0",
+    "hono": "^4.7.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.13.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.0"
+  }
+}

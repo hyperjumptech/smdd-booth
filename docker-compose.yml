@@ -1,0 +1,15 @@
+services:
+  booth:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-change-me}
+      SESSION_SECRET: ${SESSION_SECRET:-change-me-to-a-long-random-string}
+      PORT: "3000"
+    volumes:
+      - booth-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  booth-data:

@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+:root {
+  --hj-bg: #050505;
+  --hj-fg: #ffffff;
+  --hj-cyan: #5ec8f0;
+  --hj-yellow: #f5d547;
+  --hj-muted: #a3a3a3;
+  --hj-surface: #121212;
+  --hj-border: rgba(255, 255, 255, 0.15);
+  --hj-on-accent: #050505;
+  --hj-card: #050505;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background:
+    radial-gradient(ellipse 120% 80% at 50% -20%, rgba(94, 200, 240, 0.14), transparent 55%),
+    linear-gradient(180deg, #0a0a0a 0%, var(--hj-bg) 40%, #000000 100%);
+  background-attachment: fixed;
+  color: var(--hj-fg);
+  font-family: "Manrope", system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3 {
+  font-family: "Syne", system-ui, sans-serif;
+}
+
+@keyframes step-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.step-enter {
+  animation: step-enter 0.3s ease-out;
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@booth/shared",
+  "private": true,
+  "type": "module",
+  "main": "./dist/quiz.js",
+  "types": "./dist/quiz.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/quiz.d.ts",
+      "import": "./dist/quiz.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.0"
+  }
+}
