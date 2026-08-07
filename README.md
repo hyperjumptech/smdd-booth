@@ -57,11 +57,14 @@ docker run --rm -p 3000:3000 \
 
 Buka http://localhost:3000 (quiz) dan http://localhost:3000/admin.
 
-Atau pakai Compose:
+Atau pakai Compose (butuh `.env` dengan `ADMIN_PASSWORD` + `SESSION_SECRET`):
 
 ```bash
-docker compose up --build
+cp .env.example .env   # ganti password & secret
+docker compose up --build -d
 ```
+
+SQLite tersimpan di volume `booth-data`. Cek status: `docker compose ps` / logs: `docker compose logs -f`.
 
 ### Environment
 
