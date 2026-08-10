@@ -1,10 +1,4 @@
 import { useState, type FormEvent } from "react";
-import {
-  QUESTIONS,
-  RESULTS,
-  type Answer,
-  type Choice,
-} from "@booth/shared";
 import { adminExportUrl, adminList, adminLogin } from "../lib/api";
 
 const PAGE_SIZE = 10;
@@ -13,11 +7,13 @@ type Submission = {
   id: number;
   name: string;
   email: string;
-  answers: Answer[];
-  result_key: Choice;
-  result_label: string;
+  badges: { caseId: string; kind: string; revealName: string }[];
   created_at: string;
 };
+
+function kindLabel(kind: string): string {
+  return kind === "service" ? "Service" : "Product";
+}
 
 function formatWaktu(createdAt: string): string {
   const date = new Date(createdAt.replace(" ", "T") + "Z");
@@ -25,23 +21,6 @@ function formatWaktu(createdAt: string): string {
     dateStyle: "medium",
     timeStyle: "short",
   });
-}
-
-function formatAnswer(answer: Answer): { title: string; body: string } {
-  if (answer.questionId === "tiebreaker") {
-    const service = RESULTS[answer.choice]?.service ?? answer.choice;
-    return {
-      title: "Tiebreaker",
-      body: `${answer.choice} — ${service}`,
-    };
-  }
-
-  const question = QUESTIONS.find((q) => q.id === answer.questionId);
-  const option = question?.options[answer.choice];
-  return {
-    title: question?.prompt ?? answer.questionId,
-    body: option ? `${answer.choice}. ${option}` : answer.choice,
-  };
 }
 
 async function downloadCsv() {
@@ -187,6 +166,7 @@ export function AdminPage() {
           <ul className="flex flex-col gap-3">
             {pageRows.map((row) => {
               const open = expandedId === row.id;
+              const badges = Array.isArray(row.badges) ? row.badges : [];
               return (
                 <li
                   key={row.id}
@@ -201,14 +181,14 @@ export function AdminPage() {
                     <div className="flex items-start justify-between gap-3">
                       <span className="font-semibold">{row.name}</span>
                       <span className="shrink-0 text-xs text-[var(--hj-muted)]">
-                        {open ? "Tutup" : "Jawaban"}
+                        {open ? "Tutup" : "Badge"}
                       </span>
                     </div>
                     <span className="break-all text-sm text-[var(--hj-muted)]">
                       {row.email}
                     </span>
                     <span className="text-sm text-[var(--hj-cyan)]">
-                      {row.result_label}
+                      {badges.length} badge
                     </span>
                     <span className="text-xs text-[var(--hj-muted)]">
                       {formatWaktu(row.created_at)}
@@ -217,24 +197,28 @@ export function AdminPage() {
 
                   {open && (
                     <div className="border-t border-[var(--hj-border)] px-4 py-3">
-                      <ol className="flex flex-col gap-4">
-                        {row.answers.map((answer, index) => {
-                          const { title, body } = formatAnswer(answer);
-                          return (
-                            <li key={`${answer.questionId}-${index}`}>
-                              <p className="mb-1 text-xs font-medium text-[var(--hj-muted)]">
-                                {answer.questionId === "tiebreaker"
-                                  ? "Tiebreaker"
-                                  : `Q${index + 1}`}
-                              </p>
-                              <p className="mb-1 text-sm leading-snug">{title}</p>
-                              <p className="text-sm leading-snug text-[var(--hj-cyan)]">
-                                {body}
-                              </p>
+                      {badges.length === 0 ? (
+                        <p className="text-sm text-[var(--hj-muted)]">
+                          Belum ada badge.
+                        </p>
+                      ) : (
+                        <ul className="flex flex-col gap-2">
+                          {badges.map((badge) => (
+                            <li
+                              key={badge.caseId}
+                              className="text-sm leading-snug"
+                            >
+                              <span className="font-medium">
+                                {badge.revealName}
+                              </span>
+                              <span className="text-[var(--hj-muted)]">
+                                {" "}
+                                · {kindLabel(badge.kind)}
+                              </span>
                             </li>
-                          );
-                        })}
-                      </ol>
+                          ))}
+                        </ul>
+                      )}
                     </div>
                   )}
                 </li>

@@ -2,12 +2,12 @@
   "name": "@booth/shared",
   "private": true,
   "type": "module",
-  "main": "./dist/quiz.js",
-  "types": "./dist/quiz.d.ts",
+  "main": "./dist/cases.js",
+  "types": "./dist/cases.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/quiz.d.ts",
-      "import": "./dist/quiz.js"
+      "types": "./dist/cases.d.ts",
+      "import": "./dist/cases.js"
     }
   },
   "scripts": {

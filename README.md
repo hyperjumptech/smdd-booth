@@ -1,6 +1,17 @@
-# Booth Quiz — Hyperjump
+# Booth Badge Detective — Hyperjump
 
-Interactive booth quiz monorepo (`client`, `server`, `shared`).
+Interactive booth experience monorepo (`client`, `server`, `shared`). Visitors play detective: pick problems, read stories, solve cases, and earn badges that reveal Hyperjump services and products.
+
+## Booth flow
+
+1. **QR / welcome** — visitor lands on the booth SPA
+2. **Lead capture** — name + email before exploring
+3. **Problems | Badges** — two tabs: browse pain-first cases, or view earned badges
+4. **Solve cases** — read the story, tap “Selesaikan masalah ini!” to earn a badge (service or product reveal)
+5. **Submit** — enabled when visitor has ≥ **2 service** + ≥ **1 product** badge; sends all earned badges to the server
+6. **Siap stamp** — after submit, Badges tab shows stamp-ready state for staff to verify and give a physical doorprize stamp
+
+Progress is stored in `localStorage` until submit. Admin at `/admin` lists submissions and exports CSV with badge details.
 
 ## Setup
 
@@ -47,15 +58,15 @@ npm start
 Build & run — API + SPA di port `3000`:
 
 ```bash
-docker build -t booth-quiz .
+docker build -t booth-badge-detective .
 docker run --rm -p 3000:3000 \
   -e ADMIN_PASSWORD='change-me' \
   -e SESSION_SECRET='change-me-to-a-long-random-string' \
-  -v booth-quiz-data:/app/data \
-  booth-quiz
+  -v booth-data:/app/data \
+  booth-badge-detective
 ```
 
-Buka http://localhost:3000 (quiz) dan http://localhost:3000/admin.
+Buka http://localhost:3000 (booth) dan http://localhost:3000/admin.
 
 Atau pakai Compose (butuh `.env` dengan `ADMIN_PASSWORD` + `SESSION_SECRET`):
 
@@ -81,7 +92,7 @@ Ensure the `data/` directory is writable — SQLite stores submissions at `data/
 
 ```ini
 [Unit]
-Description=Booth Quiz
+Description=Booth Badge Detective
 After=network.target
 
 [Service]
@@ -99,7 +110,7 @@ WantedBy=multi-user.target
 Or with PM2:
 
 ```bash
-pm2 start npm --name booth-quiz -- start
+pm2 start npm --name booth-badge-detective -- start
 pm2 save
 ```
 

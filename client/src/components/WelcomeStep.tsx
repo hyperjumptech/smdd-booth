@@ -11,7 +11,7 @@ export function WelcomeStep({ onStart }: WelcomeStepProps) {
         className="mb-10 w-full max-w-full"
       />
       <p className="mb-12 w-full max-w-full text-lg leading-relaxed text-[var(--hj-muted)]">
-        Cari solusi tech yang pas buat bisnis kamu
+        Pilih masalah, pecahkan kasusnya, kumpulkan badge.
       </p>
       <button
         type="button"

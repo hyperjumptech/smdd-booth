@@ -1,12 +1,12 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { QuizPage } from "./pages/QuizPage";
+import { BoothPage } from "./pages/BoothPage";
 import { AdminPage } from "./pages/AdminPage";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<QuizPage />} />
+        <Route path="/" element={<BoothPage />} />
         <Route path="/admin" element={<AdminPage />} />
       </Routes>
     </BrowserRouter>

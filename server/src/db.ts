@@ -1,14 +1,12 @@
 import Database from "better-sqlite3";
-import type { Answer, Choice } from "@booth/shared";
+import type { Badge } from "@booth/shared";
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS submissions (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   name TEXT NOT NULL,
   email TEXT NOT NULL,
-  answers TEXT NOT NULL,
-  result_key TEXT NOT NULL,
-  result_label TEXT NOT NULL,
+  badges TEXT NOT NULL,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 `;
@@ -17,23 +15,31 @@ export type SubmissionRow = {
   id: number;
   name: string;
   email: string;
-  answers: Answer[];
-  result_key: Choice;
-  result_label: string;
+  badges: Badge[];
   created_at: string;
 };
 
 export type CreateSubmissionInput = {
   name: string;
   email: string;
-  answers: Answer[];
-  resultKey: Choice;
-  resultLabel: string;
+  badges: Badge[];
 };
 
 export function initDb(path: string): Database.Database {
   const db = new Database(path);
   db.exec(SCHEMA);
+
+  const cols = db.prepare(`PRAGMA table_info(submissions)`).all() as {
+    name: string;
+  }[];
+  const names = new Set(cols.map((c) => c.name));
+  if (names.has("answers") || names.has("result_key")) {
+    db.exec(`
+      DROP TABLE IF EXISTS submissions;
+      ${SCHEMA}
+    `);
+  }
+
   return db;
 }
 
@@ -43,16 +49,10 @@ export function createSubmission(
 ): { id: number } {
   const result = db
     .prepare(
-      `INSERT INTO submissions (name, email, answers, result_key, result_label)
-       VALUES (?, ?, ?, ?, ?)`,
+      `INSERT INTO submissions (name, email, badges)
+       VALUES (?, ?, ?)`,
     )
-    .run(
-      input.name,
-      input.email,
-      JSON.stringify(input.answers),
-      input.resultKey,
-      input.resultLabel,
-    );
+    .run(input.name, input.email, JSON.stringify(input.badges));
 
   return { id: Number(result.lastInsertRowid) };
 }
@@ -60,7 +60,7 @@ export function createSubmission(
 export function listSubmissions(db: Database.Database): SubmissionRow[] {
   const rows = db
     .prepare(
-      `SELECT id, name, email, answers, result_key, result_label, created_at
+      `SELECT id, name, email, badges, created_at
        FROM submissions
        ORDER BY id DESC`,
     )
@@ -68,9 +68,7 @@ export function listSubmissions(db: Database.Database): SubmissionRow[] {
     id: number;
     name: string;
     email: string;
-    answers: string;
-    result_key: Choice;
-    result_label: string;
+    badges: string;
     created_at: string;
   }>;
 
@@ -78,9 +76,7 @@ export function listSubmissions(db: Database.Database): SubmissionRow[] {
     id: row.id,
     name: row.name,
     email: row.email,
-    answers: JSON.parse(row.answers) as Answer[],
-    result_key: row.result_key,
-    result_label: row.result_label,
+    badges: JSON.parse(row.badges) as Badge[],
     created_at: row.created_at,
   }));
 }

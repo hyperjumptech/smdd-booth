@@ -1,9 +1,7 @@
 export async function createSubmission(payload: {
   name: string;
   email: string;
-  answers: { questionId: string; choice: string }[];
-  resultKey: string;
-  tiebreaker?: string;
+  badges: { caseId: string; kind: string; revealName: string }[];
 }) {
   const res = await fetch("/api/submissions", {
     method: "POST",
