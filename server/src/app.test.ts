@@ -1,3 +1,4 @@
+import { CASES } from "@booth/shared";
 import { describe, expect, it } from "vitest";
 import { createApp } from "./app.js";
 import { initDb } from "./db.js";
@@ -11,32 +12,35 @@ function tempDb() {
   return initDb(dbPath);
 }
 
+function sampleBadges() {
+  const services = CASES.filter((c) => c.kind === "service").slice(0, 2);
+  const product = CASES.find((c) => c.kind === "product")!;
+  return [...services, product].map((c) => ({
+    caseId: c.id,
+    kind: c.kind,
+    revealName: c.revealName,
+  }));
+}
+
 describe("POST /api/submissions", () => {
-  it("stores a valid submission", async () => {
-    const db = tempDb();
-    const app = createApp({ db, adminPassword: "secret", sessionSecret: "sess" });
-    const answers = [
-      { questionId: "q1", choice: "A" },
-      { questionId: "q2", choice: "A" },
-      { questionId: "q3", choice: "A" },
-      { questionId: "q4", choice: "B" },
-      { questionId: "q5", choice: "C" },
-      { questionId: "q6", choice: "D" },
-      { questionId: "q7", choice: "E" },
-    ];
+  it("stores a valid badge submission", async () => {
+    const app = createApp({
+      db: tempDb(),
+      adminPassword: "secret",
+      sessionSecret: "sess",
+    });
     const res = await app.request("/api/submissions", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: "Denny",
         email: "denny@example.com",
-        answers,
-        resultKey: "A",
+        badges: sampleBadges(),
       }),
     });
     expect(res.status).toBe(201);
     const body = await res.json();
-    expect(body.id).toBeTypeOf("number");
+    expect(body.id).toEqual(expect.any(Number));
   });
 
   it("rejects invalid email", async () => {
@@ -48,53 +52,31 @@ describe("POST /api/submissions", () => {
       body: JSON.stringify({
         name: "X",
         email: "not-an-email",
-        answers: [],
-        resultKey: "A",
+        badges: sampleBadges(),
       }),
     });
     expect(res.status).toBe(400);
   });
 
-  it("accepts tiebreaker answer in answers array", async () => {
-    const db = tempDb();
-    const app = createApp({ db, adminPassword: "secret", sessionSecret: "sess" });
-    const questionAnswers = [
-      { questionId: "q1", choice: "A" },
-      { questionId: "q2", choice: "A" },
-      { questionId: "q3", choice: "A" },
-      { questionId: "q4", choice: "B" },
-      { questionId: "q5", choice: "B" },
-      { questionId: "q6", choice: "B" },
-      { questionId: "q7", choice: "C" },
-    ];
-    const answers = [
-      ...questionAnswers,
-      { questionId: "tiebreaker", choice: "A" },
-    ];
-    const res = await app.request("/api/submissions", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: "Denny",
-        email: "denny@example.com",
-        answers,
-        resultKey: "A",
-      }),
+  it("rejects when fewer than 2 services or 0 products", async () => {
+    const app = createApp({
+      db: tempDb(),
+      adminPassword: "secret",
+      sessionSecret: "sess",
     });
-    expect(res.status).toBe(201);
-  });
-
-  it("rejects resultKey mismatch", async () => {
-    const db = tempDb();
-    const app = createApp({ db, adminPassword: "secret", sessionSecret: "sess" });
-    const answers = [
-      { questionId: "q1", choice: "A" },
-      { questionId: "q2", choice: "A" },
-      { questionId: "q3", choice: "A" },
-      { questionId: "q4", choice: "B" },
-      { questionId: "q5", choice: "C" },
-      { questionId: "q6", choice: "D" },
-      { questionId: "q7", choice: "E" },
+    const service = CASES.find((c) => c.kind === "service")!;
+    const product = CASES.find((c) => c.kind === "product")!;
+    const badges = [
+      {
+        caseId: service.id,
+        kind: service.kind,
+        revealName: service.revealName,
+      },
+      {
+        caseId: product.id,
+        kind: product.kind,
+        revealName: product.revealName,
+      },
     ];
     const res = await app.request("/api/submissions", {
       method: "POST",
@@ -102,25 +84,40 @@ describe("POST /api/submissions", () => {
       body: JSON.stringify({
         name: "Denny",
         email: "denny@example.com",
-        answers,
-        resultKey: "B",
+        badges,
       }),
     });
     expect(res.status).toBe(400);
     const body = await res.json();
-    expect(body.error).toBe("resultKey does not match answers");
+    expect(body.error).toBe("need at least 2 service and 1 product badges");
+  });
+
+  it("rejects unknown caseId or kind/revealName mismatch", async () => {
+    const app = createApp({
+      db: tempDb(),
+      adminPassword: "secret",
+      sessionSecret: "sess",
+    });
+    const badges = sampleBadges();
+    badges[0] = {
+      caseId: "nonexistent-case",
+      kind: "service",
+      revealName: "Fake",
+    };
+    const res = await app.request("/api/submissions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: "Denny",
+        email: "denny@example.com",
+        badges,
+      }),
+    });
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    expect(body.error).toBe("unknown caseId");
   });
 });
-
-const SAMPLE_ANSWERS = [
-  { questionId: "q1", choice: "A" },
-  { questionId: "q2", choice: "A" },
-  { questionId: "q3", choice: "A" },
-  { questionId: "q4", choice: "B" },
-  { questionId: "q5", choice: "C" },
-  { questionId: "q6", choice: "D" },
-  { questionId: "q7", choice: "E" },
-];
 
 async function createSampleSubmission(app: ReturnType<typeof createApp>) {
   await app.request("/api/submissions", {
@@ -129,8 +126,7 @@ async function createSampleSubmission(app: ReturnType<typeof createApp>) {
     body: JSON.stringify({
       name: "Denny",
       email: "denny@example.com",
-      answers: SAMPLE_ANSWERS,
-      resultKey: "A",
+      badges: sampleBadges(),
     }),
   });
 }
@@ -205,6 +201,7 @@ describe("admin auth", () => {
     expect(list).toHaveLength(1);
     expect(list[0].name).toBe("Denny");
     expect(list[0].email).toBe("denny@example.com");
+    expect(list[0].badges).toEqual(sampleBadges());
 
     const exportRes = await app.request("/api/admin/export", {
       headers: { Cookie: cookie },
@@ -215,9 +212,7 @@ describe("admin auth", () => {
       "submissions.csv",
     );
     const csv = await exportRes.text();
-    expect(csv.split("\n")[0]).toBe(
-      "id,name,email,result_key,result_label,answers,created_at",
-    );
+    expect(csv.split("\n")[0]).toBe("id,name,email,badges,created_at");
     expect(csv).toContain("Denny");
     expect(csv).toContain("denny@example.com");
   });

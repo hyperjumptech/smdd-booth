@@ -1,9 +1,7 @@
 import {
-  QUESTIONS,
-  RESULTS,
-  type Answer,
-  type Choice,
-  resolveResultKey,
+  type Badge,
+  canSubmitBadges,
+  getCaseById,
 } from "@booth/shared";
 import { serveStatic } from "@hono/node-server/serve-static";
 import fs from "node:fs";
@@ -19,10 +17,7 @@ import {
 } from "./auth.js";
 import { createSubmission, listSubmissions } from "./db.js";
 
-const CHOICES: Choice[] = ["A", "B", "C", "D", "E"];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const QUESTION_IDS = new Set(QUESTIONS.map((q) => q.id));
-const TIEBREAKER_ID = "tiebreaker";
 const SECURE_COOKIE =
   process.env.NODE_ENV === "production" || process.env.SECURE_COOKIES === "1";
 
@@ -36,14 +31,8 @@ export type AppDeps = {
 type SubmissionBody = {
   name?: string;
   email?: string;
-  answers?: Answer[];
-  resultKey?: Choice;
-  tiebreaker?: Choice;
+  badges?: Badge[];
 };
-
-function isChoice(value: string): value is Choice {
-  return CHOICES.includes(value as Choice);
-}
 
 function validateSubmissionBody(body: SubmissionBody): string | null {
   const name = body.name?.trim();
@@ -52,63 +41,23 @@ function validateSubmissionBody(body: SubmissionBody): string | null {
   const email = body.email?.trim();
   if (!email || !EMAIL_RE.test(email)) return "invalid email";
 
-  if (
-    !Array.isArray(body.answers) ||
-    body.answers.length < 7 ||
-    body.answers.length > 8
-  ) {
-    return "answers must contain 7 or 8 items";
+  if (!Array.isArray(body.badges) || body.badges.length === 0) {
+    return "badges required";
   }
 
-  const seenIds = new Set<string>();
-  let tiebreakerInAnswers: Choice | undefined;
-
-  for (const answer of body.answers) {
-    if (!answer || typeof answer.questionId !== "string") {
-      return "invalid answer";
+  const seen = new Set<string>();
+  for (const b of body.badges) {
+    if (!b?.caseId || seen.has(b.caseId)) return "invalid badges";
+    seen.add(b.caseId);
+    const c = getCaseById(b.caseId);
+    if (!c) return "unknown caseId";
+    if (b.kind !== c.kind || b.revealName !== c.revealName) {
+      return "badge does not match case";
     }
-    if (answer.questionId === TIEBREAKER_ID) {
-      if (tiebreakerInAnswers) return "duplicate tiebreaker";
-      if (!isChoice(answer.choice)) return "invalid choice";
-      tiebreakerInAnswers = answer.choice;
-      continue;
-    }
-    if (!QUESTION_IDS.has(answer.questionId)) {
-      return "invalid questionId";
-    }
-    if (!isChoice(answer.choice)) {
-      return "invalid choice";
-    }
-    if (seenIds.has(answer.questionId)) {
-      return "duplicate questionId";
-    }
-    seenIds.add(answer.questionId);
   }
 
-  if (seenIds.size !== 7) {
-    return "answers must contain all 7 questions";
-  }
-
-  if (!body.resultKey || !isChoice(body.resultKey)) {
-    return "invalid resultKey";
-  }
-
-  const tiebreaker = body.tiebreaker ?? tiebreakerInAnswers;
-  if (tiebreaker !== undefined && !isChoice(tiebreaker)) {
-    return "invalid tiebreaker";
-  }
-
-  const questionAnswers = body.answers.filter(
-    (answer) => answer.questionId !== TIEBREAKER_ID,
-  );
-
-  try {
-    const expected = resolveResultKey(questionAnswers, tiebreaker);
-    if (expected !== body.resultKey) {
-      return "resultKey does not match answers";
-    }
-  } catch {
-    return "resultKey does not match answers";
+  if (!canSubmitBadges(body.badges)) {
+    return "need at least 2 service and 1 product badges";
   }
 
   return null;
@@ -124,15 +73,13 @@ function csvEscape(value: string): string {
 function submissionsToCsv(
   rows: ReturnType<typeof listSubmissions>,
 ): string {
-  const header = "id,name,email,result_key,result_label,answers,created_at";
+  const header = "id,name,email,badges,created_at";
   const lines = rows.map((row) =>
     [
       String(row.id),
       csvEscape(row.name),
       csvEscape(row.email),
-      csvEscape(row.result_key),
-      csvEscape(row.result_label),
-      csvEscape(JSON.stringify(row.answers)),
+      csvEscape(JSON.stringify(row.badges)),
       csvEscape(row.created_at),
     ].join(","),
   );
@@ -161,15 +108,12 @@ export function createApp(deps: AppDeps) {
 
     const name = body.name!.trim();
     const email = body.email!.trim();
-    const answers = body.answers!;
-    const resultKey = body.resultKey!;
+    const badges = body.badges!;
 
     const { id } = createSubmission(deps.db, {
       name,
       email,
-      answers,
-      resultKey,
-      resultLabel: RESULTS[resultKey].service,
+      badges,
     });
 
     return c.json({ id }, 201);
