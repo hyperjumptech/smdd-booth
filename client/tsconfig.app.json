@@ -22,14 +22,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
-  "exclude": [
-    "src/pages/QuizPage.tsx",
-    "src/hooks/useQuizState.ts",
-    "src/components/QuestionStep.tsx",
-    "src/components/TiebreakerStep.tsx",
-    "src/components/ResultStep.tsx",
-    "src/components/ResultCard.tsx",
-    "src/lib/saveCard.ts"
-  ]
+  "include": ["src"]
 }
