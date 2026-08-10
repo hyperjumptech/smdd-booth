@@ -9,5 +9,5 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["quiz.ts"]
+  "include": ["cases.ts", "quiz.ts"]
 }
