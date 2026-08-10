@@ -3,19 +3,17 @@ import { adminExportUrl, adminList, adminLogin } from "../lib/api";
 
 const PAGE_SIZE = 10;
 
-type Badge = {
-  caseId: string;
-  kind: string;
-  revealName: string;
-};
-
 type Submission = {
   id: number;
   name: string;
   email: string;
-  badges: Badge[];
+  badges: { caseId: string; kind: string; revealName: string }[];
   created_at: string;
 };
+
+function kindLabel(kind: string): string {
+  return kind === "service" ? "Service" : "Product";
+}
 
 function formatWaktu(createdAt: string): string {
   const date = new Date(createdAt.replace(" ", "T") + "Z");
@@ -215,7 +213,7 @@ export function AdminPage() {
                               </span>
                               <span className="text-[var(--hj-muted)]">
                                 {" "}
-                                · {badge.kind}
+                                · {kindLabel(badge.kind)}
                               </span>
                             </li>
                           ))}

@@ -124,7 +124,10 @@ export function BadgesTab({
 
       <button
         type="button"
-        onClick={resetProgress}
+        onClick={() => {
+          setSubmitStatus("idle");
+          resetProgress();
+        }}
         className="min-h-12 w-full rounded-xl border border-[var(--hj-border)] bg-transparent px-6 py-3 text-base font-semibold text-[var(--hj-muted)] transition-opacity active:opacity-80"
       >
         Mulai Lagi
