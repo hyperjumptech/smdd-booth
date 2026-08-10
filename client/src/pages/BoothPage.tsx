@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { getCaseById } from "@booth/shared";
 import { WelcomeStep } from "../components/WelcomeStep";
 import { LeadFormStep } from "../components/LeadFormStep";
 import { ProblemsList } from "../components/ProblemsList";
+import { CaseDetail } from "../components/CaseDetail";
 import { BadgesTab } from "../components/BadgesTab";
 import { useBoothState } from "../hooks/useBoothState";
 
@@ -12,13 +14,20 @@ export function BoothPage() {
     step,
     name,
     email,
+    badges,
     goToLead,
     setName,
     setEmail,
     goExplore,
+    earnBadge,
+    hasBadge,
   } = useBoothState();
 
   const [activeTab, setActiveTab] = useState<ExploreTab>("problems");
+  const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
+
+  const selectedCase =
+    selectedCaseId !== null ? getCaseById(selectedCaseId) : undefined;
 
   return (
     <main className="mx-auto min-h-dvh w-full max-w-md">
@@ -79,7 +88,21 @@ export function BoothPage() {
           </div>
 
           <div className="flex-1">
-            {activeTab === "problems" && <ProblemsList />}
+            {activeTab === "problems" &&
+              (selectedCase ? (
+                <CaseDetail
+                  key={selectedCase.id}
+                  boothCase={selectedCase}
+                  hasBadge={hasBadge(selectedCase.id)}
+                  earnBadge={earnBadge}
+                  onClose={() => setSelectedCaseId(null)}
+                />
+              ) : (
+                <ProblemsList
+                  badges={badges}
+                  onSelectCase={setSelectedCaseId}
+                />
+              ))}
             {activeTab === "badges" && <BadgesTab />}
           </div>
         </div>
