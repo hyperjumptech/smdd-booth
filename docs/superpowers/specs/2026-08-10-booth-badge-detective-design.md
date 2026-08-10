@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-10  
 **Project:** smdd-booth-2026  
-**Status:** Draft for user review  
+**Status:** Approved  
 **Supersedes:** Quiz A–E recommendation flow in `2026-08-07-booth-quiz-design.md` (stack/hosting/admin auth still apply unless noted)
 
 ## Goal
