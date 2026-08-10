@@ -15,12 +15,15 @@ export function BoothPage() {
     name,
     email,
     badges,
+    submitted,
     goToLead,
     setName,
     setEmail,
     goExplore,
     earnBadge,
     hasBadge,
+    markSubmitted,
+    resetProgress,
   } = useBoothState();
 
   const [activeTab, setActiveTab] = useState<ExploreTab>("problems");
@@ -103,7 +106,16 @@ export function BoothPage() {
                   onSelectCase={setSelectedCaseId}
                 />
               ))}
-            {activeTab === "badges" && <BadgesTab />}
+            {activeTab === "badges" && (
+              <BadgesTab
+                name={name}
+                email={email}
+                badges={badges}
+                submitted={submitted}
+                markSubmitted={markSubmitted}
+                resetProgress={resetProgress}
+              />
+            )}
           </div>
         </div>
       )}
