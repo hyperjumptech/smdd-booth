@@ -4,6 +4,7 @@ import {
   canSubmitBadges,
   countKinds,
   getCaseById,
+  getCaseNumber,
   type Badge,
 } from "./cases.js";
 
@@ -16,7 +17,11 @@ describe("CASES inventory", () => {
       ids.add(c.id);
       expect(["service", "product"]).toContain(c.kind);
       expect(c.painTitle.length).toBeGreaterThan(0);
-      expect(c.story.length).toBeGreaterThan(40);
+      expect(c.hook.length).toBeGreaterThan(20);
+      expect(c.clues.length).toBe(3);
+      for (const clue of c.clues) {
+        expect(clue.length).toBeGreaterThan(10);
+      }
       expect(c.revealName.length).toBeGreaterThan(0);
       expect(c.revealBody.length).toBeGreaterThan(0);
     }
@@ -46,5 +51,11 @@ describe("badge helpers", () => {
     const first = CASES[0];
     expect(getCaseById(first.id)?.id).toBe(first.id);
     expect(getCaseById("missing")).toBeUndefined();
+  });
+
+  it("getCaseNumber is 1-based and 0 for unknown ids", () => {
+    expect(getCaseNumber(CASES[0].id)).toBe(1);
+    expect(getCaseNumber(CASES[2].id)).toBe(3);
+    expect(getCaseNumber("missing")).toBe(0);
   });
 });
