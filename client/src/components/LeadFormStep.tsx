@@ -48,9 +48,15 @@ export function LeadFormStep({
 
   return (
     <div className="step-enter flex min-h-dvh w-full max-w-full flex-col justify-center px-6 py-12">
-      <h1 className="mb-2 text-2xl font-bold">Kenalan dulu, yuk</h1>
+      <p className="hj-mono mb-2 text-[11px] font-bold uppercase tracking-[0.28em] text-[var(--hj-muted)]">
+        Formulir Penugasan
+      </p>
+      <h1 className="mb-2 text-3xl font-bold leading-tight">
+        Daftar jadi detektif
+      </h1>
       <p className="mb-8 text-[var(--hj-muted)]">
-        Isi data kamu untuk mulai menyelidiki kasus-kasus tech di booth ini.
+        Nama kamu dicetak di kartu detektif, dan dipakai staff booth untuk
+        verifikasi doorprize.
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6" noValidate>
@@ -98,7 +104,7 @@ export function LeadFormStep({
           disabled={!canSubmit}
           className="min-h-14 w-full rounded-xl bg-[var(--hj-cyan)] px-8 py-4 text-lg font-semibold text-[var(--hj-on-accent)] transition-opacity enabled:active:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          Lanjut
+          Terbitkan kartu detektif
         </button>
       </form>
     </div>

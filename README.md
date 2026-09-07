@@ -4,12 +4,14 @@ Interactive booth experience monorepo (`client`, `server`, `shared`). Visitors p
 
 ## Booth flow
 
-1. **QR / welcome** — visitor lands on the booth SPA
-2. **Lead capture** — name + email before exploring
-3. **Problems | Badges** — two tabs: browse pain-first cases, or view earned badges
-4. **Solve cases** — read the story, tap “Selesaikan masalah ini!” to earn a badge (service or product reveal)
+1. **QR / welcome** — visitor lands on the booth SPA, sees the 3-step brief
+2. **Lead capture** — name + email, framed as issuing a detective ID card
+3. **Berkas Kasus | Badge** — two tabs: case files filterable by Service / Product, or the badge grid
+4. **Solve cases** — each case opens with a one-line hook, then 3 pieces of evidence revealed one tap at a time; once all are open, “Pecahkan kasus ini!” runs a short analysis beat and lands the badge with a stamp slam, confetti, and haptic buzz
 5. **Submit** — enabled when visitor has ≥ **2 service** + ≥ **1 product** badge; sends all earned badges to the server
-6. **Siap stamp** — after submit, Badges tab shows stamp-ready state for staff to verify and give a physical doorprize stamp
+6. **Siap stamp** — after submit, Badge tab shows stamp-ready state for staff to verify and give a physical doorprize stamp
+
+A progress HUD above the case list tracks detective rank (Rekrut Baru through Legenda Booth), badges closed out of 16, and the Service / Product requirement meters. Unearned badges stay visible as locked slots so visitors can see what they are missing.
 
 Progress is stored in `localStorage` until submit. Admin at `/admin` lists submissions and exports CSV with badge details.
 

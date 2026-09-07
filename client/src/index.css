@@ -5,11 +5,14 @@
   --hj-fg: #ffffff;
   --hj-cyan: #5ec8f0;
   --hj-yellow: #f5d547;
+  --hj-amber: #ffb450;
+  --hj-red: #ff4d4d;
   --hj-muted: #a3a3a3;
   --hj-surface: #121212;
   --hj-border: rgba(255, 255, 255, 0.15);
   --hj-on-accent: #050505;
   --hj-card: #050505;
+  --hj-mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 body {
@@ -21,12 +24,31 @@ body {
   background-attachment: fixed;
   color: var(--hj-fg);
   font-family: "Manrope", system-ui, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
 }
 
 h1,
 h2,
 h3 {
   font-family: "Syne", system-ui, sans-serif;
+}
+
+.hj-mono {
+  font-family: var(--hj-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Faint dossier grid so plain panels read as case files, not empty boxes. */
+.hj-dossier {
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.028) 0px,
+      rgba(255, 255, 255, 0.028) 1px,
+      transparent 1px,
+      transparent 28px
+    );
 }
 
 @keyframes step-enter {
@@ -42,4 +64,157 @@ h3 {
 
 .step-enter {
   animation: step-enter 0.3s ease-out;
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.card-in {
+  animation: card-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes clue-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+}
+
+.clue-in {
+  animation: clue-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* The payoff: badge stamp lands hard, like ink hitting paper. */
+@keyframes stamp-slam {
+  0% {
+    opacity: 0;
+    transform: scale(2.6) rotate(-26deg);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(0.92) rotate(-7deg);
+  }
+  78% {
+    transform: scale(1.06) rotate(-9deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(-8deg);
+  }
+}
+
+.stamp-slam {
+  animation: stamp-slam 0.5s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+}
+
+@keyframes reveal-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.reveal-in {
+  animation: reveal-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes confetti-fall {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--dx), var(--dy), 0) rotate(var(--rot));
+  }
+}
+
+.confetti-piece {
+  animation: confetti-fall var(--dur) cubic-bezier(0.15, 0.6, 0.4, 1) both;
+  animation-delay: var(--delay);
+}
+
+/* Scanning bar for the "analysing evidence" beat between tap and reveal. */
+@keyframes scan-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(400%);
+  }
+}
+
+.scan-sweep {
+  animation: scan-sweep 0.9s ease-in-out infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(94, 200, 240, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(94, 200, 240, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(94, 200, 240, 0);
+  }
+}
+
+.pulse-ring {
+  animation: pulse-ring 2s ease-out infinite;
+}
+
+@keyframes rank-pop {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.rank-pop {
+  animation: rank-pop 0.5s cubic-bezier(0.3, 1.4, 0.5, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-enter,
+  .card-in,
+  .clue-in,
+  .stamp-slam,
+  .reveal-in,
+  .confetti-piece,
+  .scan-sweep,
+  .pulse-ring,
+  .rank-pop {
+    animation: none !important;
+  }
+
+  .confetti-piece {
+    display: none;
+  }
 }
